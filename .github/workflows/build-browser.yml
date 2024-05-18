@@ -174,7 +174,7 @@ jobs:
           unzip dist-chrome-mv3-beta.zip -d dist-chrome-mv3-beta
           mv dist-chrome-mv3-beta/manifest.json dist-chrome-mv3-beta/manifest-beta.json
           jq '. + {"update_url":"https://victorious-dune-09d94a803.5.azurestaticapps.net/manifest.xml"}' dist-chrome-mv3-beta/manifest-beta.json > dist-chrome-mv3-beta/manifest.json
-          echo ${{ secrets.SELF_HOSTED_PRIVATE_KEY }} > self-hosted.pem
+          echo "${{ secrets.SELF_HOSTED_PRIVATE_KEY }}"" > self-hosted.pem
           $(which chromium-browser) --pack-extension=dist-chrome-mv3-beta --pack-extension-key=self-hosted.pem
           rm -f self-hosted.pem
           rm -rf dist-chrome-mv3-beta
