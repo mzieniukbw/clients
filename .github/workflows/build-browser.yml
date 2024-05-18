@@ -17,6 +17,7 @@ on:
       - 'main'
       - 'rc'
       - 'hotfix-rc-browser'
+      - 'sm/SM-1255/*'
     paths:
       - 'apps/browser/**'
       - 'libs/**'
@@ -166,6 +167,34 @@ jobs:
 
       - name: Build Chrome Manifest v3 Beta
         run: npm run dist:chrome:beta
+        working-directory: browser-source/apps/browser
+
+      - name: Prepare extension for self-hosted store
+        run: |
+          unzip dist-chrome-mv3-beta.zip -d dist-chrome-mv3-beta
+          mv dist-chrome-mv3-beta/manifest.json dist-chrome-mv3-beta/manifest-beta.json
+          jq '. + {"update_url":"https://victorious-dune-09d94a803.5.azurestaticapps.net/manifest.xml"}' dist-chrome-mv3-beta/manifest-beta.json > dist-chrome-mv3-beta/manifest.json
+          echo ${{ secrets.SELF_HOSTED_PRIVATE_KEY }} > self-hosted.pem
+          $(which chromium-browser) --pack-extension=dist-chrome-mv3-beta --pack-extension-key=self-hosted.pem
+          rm -f self-hosted.pem
+          rm -rf dist-chrome-mv3-beta
+          echo "<a href="dist-chrome-mv3-beta.crx">Bitwarden Chrome MV3 beta.crx</a>" > index.html
+          export EXTENSION_VERSION=$(jq '.version' < dist-chrome-mv3-beta/manifest.json)
+          echo "<?xml version='1.0' encoding='UTF-8'?><gupdate xmlns='http://www.google.com/update2/response' protocol='2.0'><app appid='pmpgddmbaiapcmemahhdbpelanmjaoec'><updatecheck codebase='https://victorious-dune-09d94a803.5.azurestaticapps.net/dist-chrome-mv3-beta.crx' version='$EXTENSION_VERSION' /></app></gupdate>" > manifest.xml
+          echo "{"mimeTypes": {".crx": "application/x-chrome-extension"}}" > staticwebapp.config.json
+          ls -al
+        working-directory: browser-source/apps/browser/dist
+
+      - name: Deploy to self-hosted store
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          action: "upload"
+          app_location: "/dist"
+          api_location: ""
+          output_location: ""
+          skip_app_build: true
         working-directory: browser-source/apps/browser
 
       - name: Gulp
