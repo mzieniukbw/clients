@@ -179,10 +179,9 @@ jobs:
           rm -f self-hosted.pem
           rm -rf dist-chrome-mv3-beta
           echo "<a href="dist-chrome-mv3-beta.crx">Bitwarden Chrome MV3 beta.crx</a>" > index.html
-          export EXTENSION_VERSION=$(jq '.version' < dist-chrome-mv3-beta/manifest.json)
+          export EXTENSION_VERSION="$(jq '.version' < dist-chrome-mv3-beta/manifest.json)"
           echo "<?xml version='1.0' encoding='UTF-8'?><gupdate xmlns='http://www.google.com/update2/response' protocol='2.0'><app appid='pmpgddmbaiapcmemahhdbpelanmjaoec'><updatecheck codebase='https://victorious-dune-09d94a803.5.azurestaticapps.net/dist-chrome-mv3-beta.crx' version='$EXTENSION_VERSION' /></app></gupdate>" > manifest.xml
           echo '{"mimeTypes": {".crx": "application/x-chrome-extension"}}' > staticwebapp.config.json
-          ls -al
         working-directory: browser-source/apps/browser/dist
 
       - name: Deploy to self-hosted store
