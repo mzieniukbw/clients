@@ -191,11 +191,10 @@ jobs:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
-          app_location: "/dist"
+          app_location: "browser-source/apps/browser/dist"
           api_location: ""
           output_location: ""
           skip_app_build: true
-        working-directory: browser-source/apps/browser
 
       - name: Gulp
         run: gulp ci
